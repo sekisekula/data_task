@@ -15,7 +15,7 @@ def clean_sales_data(df: pd.DataFrame) -> pd.DataFrame:
         if col in cleaned.columns:
             cleaned[col] = cleaned[col].fillna("").astype(str).str.strip()
 
-    # Usuwamy powtórzony nagłówek w środku pliku oraz wiersz podsumowujący TOTAL na dole
+    # Remove repeated header inside the file and the TOTAL summary row at the bottom
     cleaned = cleaned[
         (cleaned["order_id"] != "")
         & (cleaned["order_id"].str.lower() != "order_id")
@@ -51,7 +51,7 @@ def clean_sales_data(df: pd.DataFrame) -> pd.DataFrame:
         errors="coerce",
     ).fillna(0.0)
 
-    # Uzupełniamy brakującą cenę jednostkową stałą ceną znaną dla danego produktu
+    # Fill missing unit price with the known constant price for the given product
     price_by_product = (
         cleaned.dropna(subset=["unit_price"])
         .groupby("product")["unit_price"]
@@ -74,7 +74,7 @@ def run_pipeline(
     raw_df = pd.read_csv(input_path, dtype=str)
     cleaned_df = clean_sales_data(raw_df)
 
-    # add_virtual_column obsługuje proste wyrażenia dwuargumentowe, więc liczymy w dwóch krokach
+    # add_virtual_column supports simple binary expressions, so we compute it in two steps
     with_gross = add_virtual_column(cleaned_df, "quantity * unit_price", "gross_revenue")
     if with_gross.empty:
         raise ValueError("Failed to calculate gross_revenue using add_virtual_column")

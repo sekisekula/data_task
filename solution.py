@@ -19,12 +19,12 @@ def add_virtual_column(df: pd.DataFrame, role: str, new_column: str) -> pd.DataF
     target_col = new_column.strip()
     operators = {"+", "-", "*"}
 
-    # Rozdzielamy operatory spacjami, aby obsłużyć np. "a+b" i "  a + b  "
+    # Separate operators with spaces to handle e.g. "a+b" and "  a + b  "
     expr = role.strip()
     for op in operators:
         expr = expr.replace(op, f" {op} ")
 
-    # Wyrażenie musi mieć nieparzystą liczbę elementów: kolumna, op, kolumna itp. itd.
+    # The expression must have an odd number of elements: column, op, column, etc.
     parts = expr.split()
     if len(parts) < 3 or len(parts) % 2 == 0:
         return pd.DataFrame([])
